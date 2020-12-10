@@ -1,5 +1,6 @@
 from toolz.itertoolz import concat
 from toolz.curried import map, filter, pipe
+from utils.utils import chunker
 
 from itertools import chain
 
@@ -16,19 +17,6 @@ REQUIRED_ENTRIES = set(
         "pid",
     ]
 )
-
-
-def chunker(col, delim=""):
-    """Chunks the items in collection `col` by delimiter `delim`"""
-    chunk = []
-    for item in col:
-        if item == delim:
-            yield chunk
-            chunk.clear()
-        else:
-            chunk.append(item)
-    yield chunk
-
 
 with open("input.txt") as f:
     lines = map(lambda s: s.strip(), f.readlines())
