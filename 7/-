@@ -1,0 +1,35 @@
+from itertools import reduce
+
+import networkx as nx
+import pudb  # noqa
+
+
+G = nx.DiGraph()
+
+
+with open("input.txt") as f:
+    lines = f.readlines()
+
+
+def parse_line(line):
+    container, contents = line.split("contain")
+    adj, color, _ = container.split()
+    container_color = "_".join([adj, color])
+    for bag in contents.split(","):
+        if "no other" not in bag:
+            num, adj, color, _ = bag.split()
+            content_color = "_".join([adj, color])
+            G.add_edge(container_color, content_color, weight=int(num))
+
+
+for line in lines:
+    parse_line(line)
+
+
+print(len(nx.ancestors(G, "shiny_gold")))
+
+total_weight = reduce(
+    lambda acc, e: acc + G.get_edge_data(e[0], e[1])["weight"],
+    nx.dfs_edges(G, "shiny_gold"),
+)
+print(total_weight)
