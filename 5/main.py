@@ -39,11 +39,7 @@ with open("input.txt") as f:
 
 boarding_passes = map(lambda s: s.strip(), lines)
 seat_ids = map(lambda boarding_pass: compute_seat_id(boarding_pass), boarding_passes)
-max_seat_id = reduce(
-    max,
-    seat_ids,
-    0,
-)
+max_seat_id = reduce(max, seat_ids)
 print(max_seat_id)
 
 boarding_passes = map(lambda s: s.strip(), lines)
