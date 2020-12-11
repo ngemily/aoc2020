@@ -4,6 +4,10 @@ from pyrsistent import pvector
 with open("input.txt") as f:
     lines = f.readlines()
 
+NOP = "nop"
+JMP = "jmp"
+ACC = "acc"
+
 
 def process_instruction(instructions, ptr, acc):
     """Process instruction at ptr
@@ -14,9 +18,9 @@ def process_instruction(instructions, ptr, acc):
     arg = int(arg)
 
     func_map = {
-        "nop": lambda ptr, acc, x: (ptr + 1, acc),
-        "acc": lambda ptr, acc, x: (ptr + 1, acc + x),
-        "jmp": lambda ptr, acc, x: (ptr + x, acc),
+        NOP: lambda ptr, acc, x: (ptr + 1, acc),
+        ACC: lambda ptr, acc, x: (ptr + 1, acc + x),
+        JMP: lambda ptr, acc, x: (ptr + x, acc),
     }
 
     return func_map[ins](ptr, acc, arg)
@@ -33,7 +37,6 @@ def run_instructions(instructions):
     seen = defaultdict(bool)
     while True:
         if seen[ptr]:
-            print(acc)
             return None
         seen[ptr] = True
         if ptr >= len(instructions):
@@ -42,4 +45,14 @@ def run_instructions(instructions):
 
 
 instructions = pvector(map(lambda s: s.strip(), lines))
-print(run_instructions(instructions))
+for i, instruction in enumerate(instructions):
+    if NOP in instruction:
+        result = run_instructions(instructions.set(i, instruction.replace(NOP, JMP)))
+        if result:
+            print(result)
+            break
+    elif JMP in instruction:
+        result = run_instructions(instructions.set(i, instruction.replace(JMP, NOP)))
+        if result:
+            print(result)
+            break
