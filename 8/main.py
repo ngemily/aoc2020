@@ -44,15 +44,18 @@ def run_instructions(instructions):
         ptr, acc = process_instruction(instructions, ptr, acc)
 
 
+def generate_flips(instructions):
+    """Generate instructions with NOP or JMP flipped"""
+    for i, instruction in enumerate(instructions):
+        if NOP in instruction:
+            yield instructions.set(i, instruction.replace(NOP, JMP))
+        if JMP in instruction:
+            yield instructions.set(i, instruction.replace(JMP, NOP))
+
+
 instructions = pvector(map(lambda s: s.strip(), lines))
-for i, instruction in enumerate(instructions):
-    if NOP in instruction:
-        result = run_instructions(instructions.set(i, instruction.replace(NOP, JMP)))
-        if result:
-            print(result)
-            break
-    elif JMP in instruction:
-        result = run_instructions(instructions.set(i, instruction.replace(JMP, NOP)))
-        if result:
-            print(result)
-            break
+for flipped_instructions in generate_flips(instructions):
+    result = run_instructions(flipped_instructions)
+    if result:
+        print(result)
+        break
