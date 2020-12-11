@@ -1,3 +1,4 @@
+from functools import lru_cache
 from collections import defaultdict
 from pyrsistent import pvector
 
@@ -9,12 +10,13 @@ JMP = "jmp"
 ACC = "acc"
 
 
-def process_instruction(instructions, ptr, acc):
+@lru_cache
+def process_instruction(instruction, ptr, acc):
     """Process instruction at ptr
 
     return new value of ptr, acc
     """
-    ins, arg = instructions[ptr].split()
+    ins, arg = instruction.split()
     arg = int(arg)
 
     func_map = {
@@ -37,11 +39,15 @@ def run_instructions(instructions):
     seen = defaultdict(bool)
     while True:
         if seen[ptr]:
+            # program infinite loops
             return None
         seen[ptr] = True
-        if ptr >= len(instructions):
+        try:
+            instruction = instructions[ptr]
+        except IndexError:
+            # program completed successfully
             return acc
-        ptr, acc = process_instruction(instructions, ptr, acc)
+        ptr, acc = process_instruction(instruction, ptr, acc)
 
 
 def generate_flips(instructions):
