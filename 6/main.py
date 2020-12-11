@@ -1,5 +1,6 @@
 from functools import reduce
 from utils.utils import chunker
+from operator import add
 
 with open("input.txt") as f:
     lines = map(lambda s: s.strip(), f.readlines())
@@ -18,5 +19,5 @@ def process_form2(form):
 
 forms = chunker(lines)
 form_totals = map(lambda form: process_form2(form), forms)
-total = reduce(lambda total, form_total: total + form_total, form_totals, 0)
+total = reduce(add, form_totals, 0)
 print(total)
