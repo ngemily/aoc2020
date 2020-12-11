@@ -32,10 +32,15 @@ def construct_graph(lines):
     return G
 
 
+def get_node_weight(node):
+    node_weight = 0
+    for neighbor in nx.neighbors(G, node):
+        count = G.get_edge_data(node, neighbor).get("weight")
+        node_weight += count + count * get_node_weight(neighbor)
+    return node_weight
+
+
 G = construct_graph(lines)
-
 print(len(nx.ancestors(G, TARGET)))
-
-for edge in nx.dfs_edges(G, TARGET):
-    print(edge)
-    print(G.get_edge_data(*edge))
+target_node = next(filter(lambda node: node == TARGET, G.nodes()))
+print(get_node_weight(target_node))
