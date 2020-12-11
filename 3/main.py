@@ -1,7 +1,8 @@
 from collections import namedtuple
 from itertools import cycle
-from functools import reduce
 from more_itertools import consume
+from operator import mul, add
+from toolz.curried import map, reduce, pipe
 
 import pudb  # noqa
 
@@ -55,10 +56,17 @@ def walk(tree_field, slope=Slope(1, 1)):
 
 def check_slope(slope):
     tree_field = get_tree_field()
-    num_trees = reduce(lambda acc, s: acc + is_tree(s), walk(tree_field, slope), 0)
-    print(num_trees)
+    num_trees = pipe(
+        walk(tree_field, slope),
+        map(is_tree),
+        reduce(add),
+    )
     return num_trees
 
 
-product = reduce(lambda acc, slope: acc * check_slope(slope), SLOPES, 1)
+product = pipe(
+    SLOPES,
+    map(lambda slope: check_slope(slope)),
+    reduce(mul),
+)
 print(product)
