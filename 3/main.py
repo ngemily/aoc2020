@@ -40,10 +40,8 @@ def is_tree(s):
 
 
 def walk(tree_field, slope=Slope(1, 1)):
-    i = 0
-    for row in islice(tree_field, slope.down, None, slope.down):
-        i += 1
-        consume(row, slope.across * i)
+    for i, row in enumerate(islice(tree_field, slope.down, None, slope.down)):
+        consume(row, slope.across * (i + 1))
         yield next(row)
 
 
