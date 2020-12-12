@@ -1,5 +1,5 @@
 from collections import namedtuple
-from itertools import cycle
+from itertools import cycle, islice
 from more_itertools import consume
 from operator import mul, add
 from toolz.curried import map, reduce, pipe
@@ -24,8 +24,7 @@ SLOPES = [
 
 def print_tree_field(tree_field):
     for row in tree_field:
-        consume(row, 3)
-        for i in range(30):
+        for i in range(31):
             print(next(row), end="")
         print()
 
@@ -42,20 +41,13 @@ def is_tree(s):
 
 def walk(tree_field, slope=Slope(1, 1)):
     i = 0
-    next(tree_field)
-    while True:
-        try:
-            consume(tree_field, slope.down - 1)
-            row = next(tree_field)
-            consume(row, slope.across * (i + 1))
-            i += 1
-            yield next(row)
-        except StopIteration:
-            break
+    for row in islice(tree_field, slope.down, None, slope.down):
+        i += 1
+        consume(row, slope.across * i)
+        yield next(row)
 
 
-def check_slope(slope):
-    tree_field = get_tree_field()
+def check_slope(tree_field, slope):
     num_trees = pipe(
         walk(tree_field, slope),
         map(is_tree),
@@ -66,7 +58,7 @@ def check_slope(slope):
 
 product = pipe(
     SLOPES,
-    map(lambda slope: check_slope(slope)),
+    map(lambda slope: check_slope(get_tree_field(), slope)),
     reduce(mul),
 )
 print(product)
