@@ -1,21 +1,9 @@
-from itertools import islice, tee
+from itertools import islice
+from utils.utils import two_sum
 
 import pudb  # noqa
 
 TARGET = 2020
-
-
-def two_sum(nums, target=0):
-    """
-    Returns first pair of numbers in `nums` that sum to `target`
-    """
-    nums1, nums2 = tee(nums)
-    complements = list(sorted(map(lambda x: target - x, nums1)))
-    try:
-        result = next(filter(lambda num: num in complements, nums2))
-    except StopIteration:
-        return None
-    return (result, target - result)
 
 
 with open("input.txt") as f:
