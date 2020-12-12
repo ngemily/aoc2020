@@ -4,7 +4,7 @@ from utils.utils import two_sum
 
 import pudb  # noqa
 
-WINDOW_SIZE = 5
+WINDOW_SIZE = 25
 
 with open("input.txt") as f:
     lines = f.readlines()
@@ -17,10 +17,9 @@ class RunningSumDeque(deque):
         self.__sum = 0
         self.__target = target
 
-    def check_running_sum(self, num):
-        """Returns true if inserting 'num' makes the sum of all numbers equal
-        to self.target"""
-        self.append(num)
+    def check_running_sum(self):
+        """Check if contents sum to target, popping left until sum is less than
+        or equal to target."""
         while self.__sum > self.__target:
             self.popleft()
         return self.__sum == self.__target
@@ -54,23 +53,6 @@ print(target)
 nums = map(lambda s: int(s.strip()), lines)
 window = RunningSumDeque(target)
 
-while not window.check_running_sum(next(nums)):
-    pass
+while not window.check_running_sum():
+    window.append(next(nums))
 print(min(window) + max(window))
-
-
-running_sum = 0
-for num in nums:
-    window.append(num)
-    running_sum += num
-    if running_sum == target:
-        print("found target")
-        print(max(window), min(window))
-    elif running_sum > target:
-        while running_sum > target:
-            first = window.popleft()
-            running_sum -= first
-            if running_sum == target:
-                print("found target")
-                print(max(window), min(window))
-    # need to check running_sum after each modification of target
