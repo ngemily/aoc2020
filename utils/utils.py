@@ -32,3 +32,8 @@ def print_2d_array(a):
     for row in a:
         print(row)
     print()
+
+
+def and_lists(l1, l2):
+    """ `and` two lists element-wise """
+    return [a and b for a, b in zip(l1, l2)]
