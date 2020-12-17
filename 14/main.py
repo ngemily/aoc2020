@@ -1,4 +1,5 @@
 from collections import defaultdict, namedtuple, deque
+from copy import copy
 from itertools import product, chain
 from functools import lru_cache
 
@@ -41,14 +42,20 @@ def process_mask_instruction(instruction):
     return parse_mask_instruction(instruction)
 
 
-def generate_addresses(address):
-    def map_c(c):
-        return c if c != "X" else ["1", "0"]
-
+def generate_addresses(acc, address):
     c = address.popleft()
     if len(address) > 0:
-        return product(map_c(c), generate_addresses(address))
-    return map_c(c)
+        if c == "X":
+            yield from generate_addresses(acc + "0", copy(address))
+            yield from generate_addresses(acc + "1", copy(address))
+        else:
+            yield from generate_addresses(acc + c, address)
+    else:
+        if c == "X":
+            yield acc + "0"
+            yield acc + "1"
+        else:
+            yield acc + c
 
 
 def apply_mask(address, mask):
@@ -62,18 +69,14 @@ def apply_mask(address, mask):
         return a if m == "0" else m
 
     masked_address = deque(map(lambda t: mask_char(*t), zip(address, mask)))
-    return generate_addresses(masked_address)
-
-
-def flatten(d):
-    for i in d:
-        yield from [i] if not isinstance(i, tuple) else flatten(i)
+    return masked_address
 
 
 def process_memory_instruction(memory, instruction, mask):
     address, value = parse_memory_instruction(instruction)
-    for address in apply_mask(address, mask):
-        address = int("0b" + "".join(flatten(address)), 2)
+    masked_address = apply_mask(address, mask)
+    for address in generate_addresses("0b", masked_address):
+        address = int(address, 2)
         memory[address] = value
     return memory
 
@@ -93,4 +96,7 @@ mask = Mask(0, 0)
 for instruction in lines:
     memory, mask = process_instruction(memory, instruction, mask)
 
-print(sum(memory.values()))
+sum = sum(memory.values())
+print(sum)
+if sum == 4355897790573:
+    print("pass!")
