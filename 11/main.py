@@ -1,9 +1,8 @@
-from collections import namedtuple
-from itertools import chain, product
+from itertools import chain
 from toolz.curried import reduce, map, pipe
 from operator import add
 from pyrsistent import pvector
-from utils.utils import print_2d_array
+from utils.utils import print_2d_array, Point2D
 
 import pudb  # noqa
 
@@ -12,13 +11,6 @@ with open("input.txt") as f:
 
 EMPTY_SEAT = "L"
 OCCUPIED_SEAT = "#"
-
-
-class Point(namedtuple("Point", ["x", "y"])):
-    def neighbours(self):
-        for p in product(range(self.x - 1, self.x + 2), range(self.y - 1, self.y + 2)):
-            if p != self:
-                yield Point(*p)
 
 
 seats = pvector(map(lambda line: pvector(line.strip()), lines))
@@ -35,7 +27,7 @@ def is_empty(seat):
 def get_occupied_adjacent_seats(seats, i, j):
     """ Return number of occupied seats adajacent to seat[i][j] """
     occupied = 0
-    for coord in Point(i, j).neighbours():
+    for coord in Point2D(i, j).neighbours():
         try:
             if coord.x >= 0 and coord.y >= 0:
                 occupied += is_occupied(seats[coord.x][coord.y])
