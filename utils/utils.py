@@ -1,4 +1,5 @@
-from itertools import tee
+from collections import namedtuple
+from itertools import tee, product
 
 import pudb # noqa
 
@@ -37,3 +38,33 @@ def print_2d_array(a):
 def and_lists(l1, l2):
     """ `and` two lists element-wise """
     return [a and b for a, b in zip(l1, l2)]
+
+
+class Point2D(namedtuple("Point", ["x", "y"])):
+    def neighbors(self):
+        for p in product(range(self.x - 1, self.x + 2), range(self.y - 1, self.y + 2)):
+            if p != self:
+                yield Point2D(*p)
+
+
+class Point3D(namedtuple("Point", ["x", "y", "z"])):
+    def neighbors(self):
+        for p in product(
+            range(self.x - 1, self.x + 2),
+            range(self.y - 1, self.y + 2),
+            range(self.z - 1, self.z + 2),
+        ):
+            if p != self:
+                yield Point3D(*p)
+
+
+class Point4D(namedtuple("Point", ["x", "y", "z", "w"])):
+    def neighbors(self):
+        for p in product(
+            range(self.x - 1, self.x + 2),
+            range(self.y - 1, self.y + 2),
+            range(self.z - 1, self.z + 2),
+            range(self.w - 1, self.w + 2),
+        ):
+            if p != self:
+                yield Point4D(*p)

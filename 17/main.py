@@ -1,6 +1,5 @@
-from itertools import product
-from collections import namedtuple
 from pyrsistent import pmap
+from utils.utils import Point4D
 
 import pudb  # noqa
 
@@ -13,29 +12,6 @@ def is_inactive(elem):
     return elem == "."
 
 
-class Point(namedtuple("Point", ["x", "y", "z", "w"])):
-    def neighbors(self):
-        for p in product(
-            range(self.x - 1, self.x + 2),
-            range(self.y - 1, self.y + 2),
-            range(self.z - 1, self.z + 2),
-            range(self.w - 1, self.w + 2),
-        ):
-            if p != self:
-                yield Point(*p)
-
-
-# class Point(namedtuple("Point", ["x", "y", "z"])):
-#     def neighbors(self):
-#         for p in product(
-#             range(self.x - 1, self.x + 2),
-#             range(self.y - 1, self.y + 2),
-#             range(self.z - 1, self.z + 2),
-#         ):
-#             if p != self:
-#                 yield Point(*p)
-
-
 with open("input.txt") as f:
     lines = map(lambda line: line.strip(), f.readlines())
 
@@ -44,7 +20,7 @@ def initialize(rows):
     d = dict()
     for i, row in enumerate(rows):
         for j, c in enumerate(row):
-            p = Point(i, j, 0, 0)
+            p = Point4D(i, j, 0, 0)
             d[p] = True if is_active(c) else False
     return pmap(d)
 
