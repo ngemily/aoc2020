@@ -1,16 +1,25 @@
-from itertools import chain
+from collections import namedtuple
+from itertools import chain, product
 from toolz.curried import reduce, map, pipe
 from operator import add
 from pyrsistent import pvector
 from utils.utils import print_2d_array
 
-import pudb # noqa
+import pudb  # noqa
 
 with open("input.txt") as f:
     lines = f.readlines()
 
 EMPTY_SEAT = "L"
 OCCUPIED_SEAT = "#"
+
+
+class Point(namedtuple("Point", ["x", "y"])):
+    def neighbours(self):
+        for p in product(range(self.x - 1, self.x + 2), range(self.y - 1, self.y + 2)):
+            if p != self:
+                yield Point(*p)
+
 
 seats = pvector(map(lambda line: pvector(line.strip()), lines))
 
@@ -26,20 +35,10 @@ def is_empty(seat):
 def get_occupied_adjacent_seats(seats, i, j):
     """ Return number of occupied seats adajacent to seat[i][j] """
     occupied = 0
-    coords = [
-        (i - 1, j - 1),
-        (i - 1, j),
-        (i - 1, j + 1),
-        (i, j - 1),
-        (i, j + 1),
-        (i + 1, j - 1),
-        (i + 1, j),
-        (i + 1, j + 1),
-    ]
-    for coord in coords:
+    for coord in Point(i, j).neighbours():
         try:
-            if coord[0] >= 0 and coord[1] >= 0:
-                occupied += is_occupied(seats[coord[0]][coord[1]])
+            if coord.x >= 0 and coord.y >= 0:
+                occupied += is_occupied(seats[coord.x][coord.y])
         except IndexError:
             pass
     return occupied
@@ -75,6 +74,7 @@ def count_occupied_seats(seats):
 while True:
     new_seats = update_seats(seats)
     if new_seats == seats:
-        print(count_occupied_seats(new_seats))
+        occupied_seats = count_occupied_seats(new_seats)
+        print(occupied_seats)
         break
     seats = new_seats
