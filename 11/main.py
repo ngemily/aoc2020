@@ -2,7 +2,7 @@ from itertools import chain
 from toolz.curried import reduce, map, pipe
 from operator import add
 from pyrsistent import pvector
-from utils.utils import print_2d_array, Point2D
+from utils.utils import Point2D
 
 import pudb  # noqa
 
@@ -11,9 +11,14 @@ with open("input.txt") as f:
 
 EMPTY_SEAT = "L"
 OCCUPIED_SEAT = "#"
+FLOOR = "."
 
 
 seats = pvector(map(lambda line: pvector(line.strip()), lines))
+
+
+def is_floor(seat):
+    return seat == FLOOR
 
 
 def is_occupied(seat):
@@ -27,13 +32,34 @@ def is_empty(seat):
 def get_occupied_adjacent_seats(seats, i, j):
     """ Return number of occupied seats adajacent to seat[i][j] """
     occupied = 0
-    for coord in Point2D(i, j).neighbours():
+    for coord in Point2D(i, j).neighbors():
         try:
             if coord.x >= 0 and coord.y >= 0:
                 occupied += is_occupied(seats[coord.x][coord.y])
         except IndexError:
             pass
     return occupied
+
+
+def update_seat(i, j, seat):
+    num_occupied = get_occupied_adjacent_seats(seats, i, j)
+    if is_empty(seat):
+        if num_occupied == 0:
+            # seat becomes occupied
+            return OCCUPIED_SEAT
+        else:
+            # seat remains empty
+            return seat
+    elif is_occupied(seat):
+        if num_occupied >= 4:
+            # seat becomes empty
+            return EMPTY_SEAT
+        else:
+            # seat remains occupied
+            return seat
+    elif is_floor(seat):
+        return seat
+    raise ValueError(i, j, seat)
 
 
 def update_seats(seats):
@@ -46,15 +72,8 @@ def update_seats(seats):
     new_seats = seats
     for i, row in enumerate(seats):
         for j, seat in enumerate(row):
-            num_occupied = get_occupied_adjacent_seats(seats, i, j)
-            if is_empty(seat):
-                if num_occupied == 0:
-                    # seat becomes occupied
-                    new_seats = new_seats.set(i, new_seats[i].set(j, OCCUPIED_SEAT))
-            elif is_occupied(seat):
-                if num_occupied >= 4:
-                    # seat becomes empty
-                    new_seats = new_seats.set(i, new_seats[i].set(j, EMPTY_SEAT))
+            new_seat = update_seat(i, j, seat)
+            new_seats = new_seats.set(i, new_seats[i].set(j, new_seat))
 
     return new_seats
 
